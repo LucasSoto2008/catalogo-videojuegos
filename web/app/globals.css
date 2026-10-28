@@ -1,0 +1,46 @@
+* { box-sizing: border-box; }
+body { margin: 0; font-family: system-ui, sans-serif; background: #0f0f1a; color: #e5e7eb; }
+a { color: #a78bfa; text-decoration: none; }
+a:hover { text-decoration: underline; }
+h1 { margin-top: 0; }
+
+.encabezado { display: flex; justify-content: space-between; align-items: center;
+  padding: 1rem 2rem; background: #1a1a2e; border-bottom: 2px solid #7c3aed; }
+.encabezado nav { display: flex; gap: 1.2rem; }
+.logo { font-size: 1.4rem; font-weight: bold; color: white; }
+.contenedor { max-width: 1000px; margin: 0 auto; padding: 2rem 1rem; min-height: 70vh; }
+.pie { text-align: center; padding: 1rem; color: #6b7280; font-size: .85rem; }
+
+.buscador { display: flex; gap: .5rem; margin-bottom: 1.5rem; }
+.buscador input { flex: 1; }
+
+input, textarea { width: 100%; padding: .55rem; border-radius: 6px; border: 1px solid #374151;
+  background: #111827; color: #e5e7eb; font-size: 1rem; }
+button, .boton { background: #7c3aed; color: white; border: 0; padding: .55rem 1.1rem;
+  border-radius: 6px; font-size: 1rem; cursor: pointer; display: inline-block; }
+button:disabled { opacity: .6; }
+.secundario { background: #374151; }
+.peligro { background: #dc2626; }
+
+.alerta { background: #451a1a; border: 1px solid #dc2626; padding: .8rem; border-radius: 6px; }
+.error { color: #f87171; font-size: .85rem; }
+.muted { color: #9ca3af; }
+
+.grilla { list-style: none; padding: 0; display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1rem; }
+.tarjeta { background: #1a1a2e; border: 1px solid #2d2d4a; border-radius: 10px; padding: 1rem; }
+.tarjeta h2 { font-size: 1.1rem; margin: .5rem 0; }
+.tarjeta p { margin: .3rem 0; }
+.tarjeta-top { display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
+.etiqueta { background: #312e81; color: #c7d2fe; padding: .15rem .6rem; border-radius: 999px; font-size: .8rem; }
+.favorito { background: none; padding: 0; font-size: 1.4rem; }
+
+.detalle dl { display: grid; grid-template-columns: max-content 1fr; gap: .4rem 1.5rem; }
+.detalle dt { color: #9ca3af; }
+.detalle dd { margin: 0; }
+.acciones { display: flex; gap: .8rem; margin-top: 1.5rem; }
+
+.formulario { display: grid; gap: 1rem; max-width: 500px; }
+.formulario label { display: grid; gap: .3rem; }
+.formulario .check { display: flex; align-items: center; gap: .5rem; }
+.formulario .check input { width: auto; }
