@@ -147,20 +147,24 @@ Ejemplo de respuesta 422:
 ## 📝 Informe teórico
 
 **1. Códigos de estado.**
-`GET /api/videojuegos/999` devuelve **404** porque `findOrFail(999)` no encuentra ese registro: la petición está bien formada, pero el recurso pedido no existe. No es 400 (la petición no está mal escrita) ni 500 (el servidor no falló).
-`POST /api/videojuegos` con `"puntuacion": 15` devuelve **422** porque el servidor entendió el JSON, pero los datos no cumplen las reglas (`between:1,10`). No es 404 porque la ruta existe, y no es 400 porque el formato es correcto: lo que falla es el contenido, y Laravel lo indica campo por campo.
+Si pido `GET /api/videojuegos/999`, la API responde **404**. Uso `findOrFail`, y como no hay ningún juego con ese id, Laravel corta ahí y devuelve "Videojuego no encontrado". Es 404 porque la petición está bien hecha, lo que pasa es que ese juego no existe. Por eso no corresponde un 400 ni un 500.
+En cambio, si hago un `POST /api/videojuegos` con `"puntuacion": 15`, responde **422**. La ruta existe y el JSON está bien armado, pero el dato no cumple la regla `between:1,10`. El 422 dice justamente eso: "te entendí, pero estos datos no sirven". Además viene la lista de errores por campo, que es lo que muestro en el formulario.
 
 **2. HTTPS.**
-Con HTTP los datos viajan en texto plano: alguien en la misma red (por ejemplo, el Wi-Fi de la escuela) podría ver qué páginas visito, el JSON de los videojuegos y lo que mando en el formulario, e incluso modificar las respuestas (ataque "man in the middle"). Con HTTPS todo va cifrado y se verifica que el servidor sea quien dice ser. El Service Worker exige HTTPS (salvo en `localhost`) porque intercepta **todas** las peticiones de la app y puede cambiar las respuestas: si un atacante pudiera inyectar un SW por HTTP, controlaría la app de forma permanente.
+Si la app estuviera publicada en HTTP, todo viajaría sin cifrar. Cualquiera conectado al mismo Wi-Fi podría ver qué juegos estoy mirando, lo que escribo en el formulario de alta e incluso cambiar las respuestas en el camino. Con HTTPS eso no se puede, porque la información va cifrada y el navegador comprueba que el servidor sea el verdadero.
+El Service Worker exige HTTPS (menos en `localhost`, que es donde lo probé) porque tiene mucho poder: se mete en el medio de todas las peticiones de la app y queda instalado aunque cierres la pestaña. Si alguien pudiera colar uno falso por HTTP, controlaría la app para siempre.
 
 **3. CORS.**
-CORS es una regla del **navegador**: bloquea que JavaScript de un origen (`localhost:3000`) lea respuestas de otro origen (`127.0.0.1:8000`) si este no lo permite. En mi app los `fetch` a la API se hacen en Server Components y Server Actions, que corren en el servidor de Next.js (Node), no en el navegador, así que CORS no aplica. Podría aparecer si hiciera el `fetch` desde un Client Component (por ejemplo, si el `BotonFavorito` guardara el favorito llamando directo a la API con `'use client'`); ahí habría que configurar `config/cors.php` en Laravel.
+CORS es un control que hace el navegador: no deja que una página de `localhost:3000` lea respuestas de `127.0.0.1:8000` si la API no lo autoriza. En mi proyecto todos los `fetch` a Laravel están en Server Components y Server Actions, o sea que los hace el servidor de Next y no el navegador. Por eso nunca tuve problemas de CORS.
+Me aparecería si, por ejemplo, el botón de favorito (que es un Client Component) llamara directamente a la API para guardar el favorito en la base. Ahí el pedido saldría del navegador y tendría que habilitar el origen en `config/cors.php`.
 
 **4. PWA y TWA.**
-No, mi app no necesita estar en Google Play. Como PWA ya se puede instalar desde el navegador, tiene ícono propio, se abre en ventana standalone y funciona sin conexión, que es todo lo que necesita un catálogo. Una TWA sólo serviría si quisiera que la encuentren en la tienda o llegar a usuarios que buscan apps sólo ahí, pero implica pagar la cuenta de desarrollador, firmar el paquete y publicarla en HTTPS con Digital Asset Links. Para este proyecto no vale la pena.
+No, no necesita estar en Google Play. Como PWA ya se instala desde Chrome con un clic, tiene su ícono, se abre en su propia ventana sin la barra del navegador y funciona sin internet. Para un catálogo de videojuegos eso alcanza y sobra.
+Empaquetarla como TWA tendría sentido si quisiera que la gente la encuentre buscando en la tienda. Pero para eso hay que pagar la cuenta de desarrollador, firmar el paquete y tener la app publicada en HTTPS, y para este trabajo no lo vi necesario.
 
 **5. Decisiones.**
-Lo que más me costó fue que el formulario mostrara los errores de validación de Laravel. La Server Action recibe el 422, y la resolví devolviendo los `errors` del JSON como estado con `useActionState`, así el formulario muestra el mensaje debajo de cada campo y conserva lo que el usuario había escrito. Otro problema fue el modo offline: al principio sólo cacheaba la página de inicio, así que usé una estrategia network-first que guarda cada página visitada y, si no hay nada guardado, muestra `offline.html`.
+Lo que más me costó fue mostrar en el formulario los errores de validación de Laravel. Al principio, cuando mandaba un dato mal, la Server Action recibía el 422 pero en pantalla no pasaba nada y se borraba todo lo que había escrito. Lo solucioné haciendo que la action devuelva los `errors` junto con los valores cargados, y con `useActionState` los muestro debajo de cada campo sin perder lo escrito.
+También tuve un problema con el modo offline. Al principio solo se guardaba la página de inicio, así que cambié el Service Worker a "network-first": cada página que visito queda en caché y, si no hay nada guardado, se muestra mi página `offline.html`.
 
 ---
 
